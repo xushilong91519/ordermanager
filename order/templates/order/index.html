@@ -1,0 +1,313 @@
+<!-- index.html -->
+{% extends 'order/base.html' %}
+{% load staticfiles %}
+{% block base_content_1 %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="stat-widget-one">
+                <div class="stat-icon dib"><i class="ti-money color-success border-success"></i></div>
+                <div class="stat-content dib">
+                    <div class="stat-text">Total Orders</div>
+                    <div class="stat-digit">{{order_count}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="stat-widget-one">
+                <div class="stat-icon dib"><i class="ti-user color-primary border-primary"></i></div>
+                <div class="stat-content dib">
+                    <div class="stat-text">Total Customers</div>
+                    <div class="stat-digit">{{customer_count}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="stat-widget-one">
+                <div class="stat-icon dib"><i class="ti-layout-grid2 color-pink border-pink"></i></div>
+                <div class="stat-content dib">
+                    <div class="stat-text">Total Containers</div>
+                    <div class="stat-digit">{{container_count}}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class='row'>
+	<div class='col-lg-12'>
+		<div class="card">
+			<div class='card-title'>
+				<h4>Order </h4>
+			</div>
+        		<div class="bootstrap-data-table-panel" style='margin-top:10px;'>
+        			<div class="table-responsive">
+                			<table id="bootstrap-data-table-export" class="table table-striped table-bordered">
+                    				<thead>
+                        				<tr>
+                            					<th>Order Number</th>
+           	                	 			<th>Customer Code</th>
+                	            				<th>Order Date</th>
+								<th>Assign Date</th>
+								<th>Survey Locations</th>
+								<th>Depot Code</th>
+								<th>Depot Name</th>
+								<th>Unit Type</th>
+								<th>QTY</th>
+								<th>Release Number</th>
+								<th>Survey Code</th>
+								<th>Remark</th>
+                        				</tr>
+       	        	     			</thead>
+        	            			<tbody>
+							{% for order in orders %}
+								<tr>
+									<td>{{order.order_number}}</td>
+									<td>{{order.customer_code}}</td>
+									<td>{{order.order_date}}</td>
+									<td>{{order.assign_date}}</td>
+									<td>{{order.survey_locations}}</td>
+									<td>{{order.depot_code}}</td>
+									<td>{{order.depot_name}}</td>
+									<td>{{order.unit_type}}</td>
+									<td>{{order.qty}}</td>
+									<td>{{order.release_number}}</td>
+									<td>{{order.survey_code}}</td>
+									<td>{{order.remark}}</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	<button type="button" class="btn btn-default btn-rounded m-b-10" style='margin-left:15px' onclick='open_form()'>New Order</button>
+    	<div class="col-lg-12">
+        	<div class="card">
+            		<div class="card-title">
+                		<h4>Container </h4>
+            		</div>
+            		<div class="bootstrap-data-table-panel">
+                		<div class="table-responsive" >
+                			<table id="row-select" class="display table table-borderd table-hover">
+                				<thead>
+                					<tr>
+                						<th>Container Number</th>
+                						<th>Order Number</th>
+                						<th>Customer Code</th>
+                						<th>Order Date</th>
+								<th>Content</th>
+                					</tr>
+                				</thead>
+                				<tbody>
+							{% for container in containers %}
+                						<tr>
+                    							<td>{{container.container_number}}</td>
+                    							<td>{{container.order.order_number}}</td>
+                    							<td>{{container.order.customer_code}}</td>
+                    							<td>{{container.order.order_date}}</td>
+									<td>{{container.content}}</td>
+                						</tr>
+							{% endfor %}
+						</tbody>
+    						<tfoot>
+                					<tr>
+                						<th>Container Number</th>
+                						<th>Order Number</th>
+                						<th>Customer Code</th>
+                						<th>Order Date</th>
+                					</tr>
+                				</tfoot>
+                			</table>
+                		</div>
+            		</div>
+        	</div>
+    	</div>
+	<style type='text/css'>
+	.new_order{
+		position: fixed;
+		left: 0px;
+		top: 0px;
+		background: rgba(90, 90, 90, 0.5);
+		width: 100%;
+		height: 100%;
+	}
+	.tankuang{
+		position: relative;
+		background: #fff;
+		width: 50%;
+		height: 80%;
+		border-radius: 5px;
+		margin: 5% auto;
+	}
+	#header-right{
+		position: absolute;
+		right:0px;
+		top:0px;
+		height:39px;
+		width:40px;
+		border-radius:5px;
+		text-align: center;
+	}
+	</style>
+	<div class="new_order" id='new_order' style='display:none'>
+		<div class="tankuang">
+			<div class='header' id="new_form_header" style='height:40;width:100%;position:relative;margin:5% auto;border-top-left-radius:5px;border-top-right-radius:5px;'>
+				<span style='font-size:25px;margin-left:10px;'>New Order</span>
+				<button type="button" id="header-right" onclick="close_form()" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
+			</div>
+			<div class="card" style='height:80%;cardPreventCornerOverlap=false;'>
+				<div class="card-body" style='height:80%'>
+					<div class="basic-form" style='height:100%'>
+						<form style='overflow-y:scroll;height:90%;' onsubmit='return submit_order()' action='/submit_order/' method='post'>
+							{% csrf_token %}
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">The Customer Code for this order.*</p>
+								<input type="text" class="form-control input-default " placeholder="Customer Code" name='customer_code'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Ordered date*</p>
+								<input type="date" class="form-control input-default " placeholder="Order Date" name='order_date'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Assign Date*</p>
+								<input type="date" class="form-control input-default " placeholder="Assign Date" name='assign_date'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Survey Location*</p>
+								<input type="text" class="form-control input-default " placeholder="Survey Locations" name='survey_locations'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Depot Code*</p>
+								<input type="text" class="form-control input-default " placeholder="Depot Code" name='depot_code'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Depot Name*</p>
+								<input type="text" class="form-control input-default " placeholder="Depot Name" name='depot_name'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Unit Type for this Order.*</p>
+								<input type="text" class="form-control input-default " placeholder="Unit Type" name='unit_type'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">QTY*</p>
+								<input type="text" class="form-control input-default " placeholder="QTY" name='qty'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Order Release Number.*</p>
+								<input type="text" class="form-control input-default " placeholder="Release Number" name='release_number'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Survey Code*</p>
+								<input type="text" class="form-control input-default " placeholder="Survey Code" name='survey_code'>
+							</div>
+							<div class="form-group">
+								<p class="text-muted m-b-15 f-s-12">Remark</p>
+								<input type="text" class="form-control input-default " placeholder="Remark" name='remark'>
+							</div>
+							<div class='form-group' id='containers'>
+								<p class="text-muted m-b-15 f-s-12" >Containers</p>
+								<div class="card" id='saved_container' style='display:none;'>
+                                					<div class="card-title">
+                                    						<h4>Saved Container </h4>
+                                					</div>
+                                					<div class="card-body">
+                                    						<div class="table-responsive">
+                                        						<table class="table table-striped" id='container_table'>
+                                            							<thead>
+                                                							<tr>
+                                                    								<th>#</th>
+                                                    								<th>Container Number</th>
+                                                    								<th>Content</th>
+                                                    								<th>Edit/Delete</th>
+                                                							</tr>
+                                            							</thead>
+                                            							<tbody>
+											</table>
+                                    						</div>
+                                					</div>
+                            					</div>
+								<div class='card' id='new_container' style='display:none'>
+									<p class="text-muted m-b-15 f-s-12">Container Number</p>
+									<input type="text" class="form-control input-default " placeholder="Container Number" id='container_number'>
+									<p class="text-muted m-b-15 f-s-12" style='margin-top:20px;'>Container Content</p>
+									<input type="text" class="form-control input-default " placeholder="Container Content" id='container_content'>
+									<button type="button" class="btn btn-success m-b-10 m-l-1" onclick="save_container()" style="margin-top:20px;width:10%;;">Save</button>
+								</div>
+							</div>
+							<button type="button" id='add_button' class="btn btn-primary btn-flat btn-addon m-b-10 m-l-5" style='border-radius:5px;' onclick='add_container()'><i class="ti-plus"></i>Container</button>
+							<div class='footer' style='height:40;width:100%;'>
+								<button type="submit" class="btn btn-default m-b-10" style='position:absolute;right:10px;bottom:0px;'>Submit</button>
+							</div>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<script>
+	function open_form(){
+		document.getElementById('new_order').style.display="";
+	}
+	function close_form(){
+		document.getElementById('new_order').style.display="none";
+	}
+	function submit_order(){
+		document.getElementById('new_order').style.display="none";
+		return true;
+	}
+	function add_container(){
+		document.getElementById('new_container').style.display='';
+		document.getElementById('add_button').disabled='disabled';
+	}
+	function save_container(){
+		container_table=document.getElementById('container_table');
+		row_id=container_table.rows.length;
+		tr=container_table.insertRow(row_id);
+		container_number=document.getElementById('container_number').value;
+		container_content=document.getElementById('container_content').value;
+		cnumber=document.createElement('input');
+		cnumber.type='hidden';
+		cnumber.value=container_number;
+		cnumber.name='container_number_'+row_id;
+		ccontent=document.createElement('input');
+		ccontent.type='hidden';
+		ccontent.value=container_content;
+		ccontent.name='container_content_'+row_id;
+		row_count=document.createElement('input');
+                row_count.type='hidden';
+                row_count.value=row_id;
+                row_count.name='row_count';
+		document.getElementById('containers').append(cnumber);
+		document.getElementById('containers').append(ccontent);
+		document.getElementById('containers').append(row_count);
+		tr.innerHTML=`<th scope="row">${row_id}</th><td>${container_number}</td><td>${container_content}</td><td style="text-align:right;">DELETE</td>`;
+		document.getElementById('container_number').value='';
+		document.getElementById('container_content').value='';
+		document.getElementById('saved_container').style.display='';
+		document.getElementById('add_button').removeAttribute('disabled');
+		document.getElementById('new_container').style.display="none";
+	}
+	</script>
+</div>
+{% endblock %}
+{% block container-message %}
+{% endblock %}
+{% block container-content %}
+{% endblock %}
+{% block additional_source %}
+    <script src="{% static '/js/lib/data-table/datatables.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/buttons.dataTables.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/dataTables.buttons.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/buttons.flash.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/jszip.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/pdfmake.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/vfs_fonts.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/buttons.html5.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/buttons.print.min.js' %}"></script>
+    <script src="{% static '/js/lib/data-table/datatables-init.js' %}"></script>
+{% endblock %}
