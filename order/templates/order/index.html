@@ -60,6 +60,7 @@
 								<th>Release Number</th>
 								<th>Survey Code</th>
 								<th>Remark</th>
+								<th>Containers</th>
                         				</tr>
        	        	     			</thead>
         	            			<tbody>
@@ -77,6 +78,7 @@
 									<td>{{order.release_number}}</td>
 									<td>{{order.survey_code}}</td>
 									<td>{{order.remark}}</td>
+									<td><a href='#' onclick='order_container({{order.order_number}})' style='text-align:center;'>{{order.container_count}}</a></td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -86,7 +88,9 @@
 		</div>
 	</div>
 	<button type="button" class="btn btn-default btn-rounded m-b-10" style='margin-left:15px' onclick='open_form()'>New Order</button>
-    	<div class="col-lg-12">
+</div>
+<div class='row'>
+    	<div class="col-lg-7">
         	<div class="card">
             		<div class="card-title">
                 		<h4>Container </h4>
@@ -128,7 +132,7 @@
         	</div>
     	</div>
 	<style type='text/css'>
-	.new_order{
+	.new_order,.order_container{
 		position: fixed;
 		left: 0px;
 		top: 0px;
@@ -153,12 +157,55 @@
 		border-radius:5px;
 		text-align: center;
 	}
+	#header-close{
+                position: absolute;
+                right:0px;
+                top:0px;
+                height:39px;
+                width:40px;
+                border-radius:5px;
+                text-align: center;
+        }
 	</style>
+	<div class="order_container" id='order_container' style='display:none;'>
+                <div class="tankuang">
+                        <div class='header' id="new_form_header" style='height:6%;width:100%;position:relative;margin:5% auto;border-top-left-radius:5px;border-top-right-radius:5px;'>
+                                <span style='font-size:25px;margin-left:10px;'>Containers</span>
+                                <button type="button" id="header-close" onclick="close_window('order_container',['order_container_detail'])" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
+                        </div>
+			<div class="card" id='order_container_body' style='height:94%;'>
+                                <div class="card-body" style='height:80%;overflow-y:scroll;'>
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                	<th>Container Number</th>
+                                                        <th>Customer Code</th>
+                                                        <th>Content</th>
+						</tr>
+                                            </thead>
+                                            <tbody id='order_container_detail'>
+                                            </tbody>
+                                        </table>
+                                    </div>
+				    <button type="button" id='add_container_button' class="btn btn-primary btn-flat btn-addon m-b-10 m-l-5" style='border-radius:5px;' onclick='add_container()'><i class="ti-plus"></i>Container</button>
+                                </div>
+                        </div>
+                        <div class='card' id='append_container' style='display:none;height:40%;'>
+                                <button type="button" id="header-right" onclick="cancel_add_container('append_container',['append_container_number','append_container_content'],'append_container_button','input')" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
+                                <p class="text-muted m-b-15 f-s-12">Container Number</p>
+                                <input type="text" class="form-control input-default " placeholder="Container Number" id='append_container_number' autocomplete='off'>
+                                <p class="text-muted m-b-15 f-s-12" style='margin-top:20px;'>Container Content</p>
+                                <input type="text" class="form-control input-default " placeholder="Container Content" id='append_container_content' autocomplete='off'>
+                                <button type="button" class="btn btn-success m-b-10 m-l-1" onclick="submit_container()" style="margin-top:20px;width:10%;;">Submit</button>
+                        </div>
+		</div>
+	</div>
 	<div class="new_order" id='new_order' style='display:none'>
 		<div class="tankuang">
 			<div class='header' id="new_form_header" style='height:40;width:100%;position:relative;margin:5% auto;border-top-left-radius:5px;border-top-right-radius:5px;'>
 				<span style='font-size:25px;margin-left:10px;'>New Order</span>
-				<button type="button" id="header-right" onclick="close_form()" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
+				<button type="button" id="header-right" onclick="close_window('new_order')" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
 			</div>
 			<div class="card" style='height:80%;cardPreventCornerOverlap=false;'>
 				<div class="card-body" style='height:80%'>
@@ -167,7 +214,7 @@
 							{% csrf_token %}
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">The Customer Code for this order.*</p>
-								<input type="text" class="form-control input-default " placeholder="Customer Code" name='customer_code'>
+								<input type="text" class="form-control input-default " placeholder="Customer Code" name='customer_code' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Ordered date*</p>
@@ -179,31 +226,31 @@
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Survey Location*</p>
-								<input type="text" class="form-control input-default " placeholder="Survey Locations" name='survey_locations'>
+								<input type="text" class="form-control input-default " placeholder="Survey Locations" name='survey_locations' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Depot Code*</p>
-								<input type="text" class="form-control input-default " placeholder="Depot Code" name='depot_code'>
+								<input type="text" class="form-control input-default " placeholder="Depot Code" name='depot_code' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Depot Name*</p>
-								<input type="text" class="form-control input-default " placeholder="Depot Name" name='depot_name'>
+								<input type="text" class="form-control input-default " placeholder="Depot Name" name='depot_name' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Unit Type for this Order.*</p>
-								<input type="text" class="form-control input-default " placeholder="Unit Type" name='unit_type'>
+								<input type="text" class="form-control input-default " placeholder="Unit Type" name='unit_type' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">QTY*</p>
-								<input type="text" class="form-control input-default " placeholder="QTY" name='qty'>
+								<input type="text" class="form-control input-default " placeholder="QTY" name='qty' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Order Release Number.*</p>
-								<input type="text" class="form-control input-default " placeholder="Release Number" name='release_number'>
+								<input type="text" class="form-control input-default " placeholder="Release Number" name='release_number' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Survey Code*</p>
-								<input type="text" class="form-control input-default " placeholder="Survey Code" name='survey_code'>
+								<input type="text" class="form-control input-default " placeholder="Survey Code" name='survey_code' autocomplete='off'>
 							</div>
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">Remark</p>
@@ -220,26 +267,27 @@
                                         						<table class="table table-striped" id='container_table'>
                                             							<thead>
                                                 							<tr>
-                                                    								<th>#</th>
                                                     								<th>Container Number</th>
                                                     								<th>Content</th>
                                                     								<th>Edit/Delete</th>
                                                 							</tr>
                                             							</thead>
                                             							<tbody>
+												</tbody>
 											</table>
                                     						</div>
                                 					</div>
                             					</div>
 								<div class='card' id='new_container' style='display:none'>
+									<button type="button" id="header-right" onclick="cancel_add_container('new_container',['container_number','container_content'],'add_container_button','input')" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
 									<p class="text-muted m-b-15 f-s-12">Container Number</p>
-									<input type="text" class="form-control input-default " placeholder="Container Number" id='container_number'>
+									<input type="text" class="form-control input-default " placeholder="Container Number" id='container_number' autocomplete='off'>
 									<p class="text-muted m-b-15 f-s-12" style='margin-top:20px;'>Container Content</p>
-									<input type="text" class="form-control input-default " placeholder="Container Content" id='container_content'>
+									<input type="text" class="form-control input-default " placeholder="Container Content" id='container_content' autocomplete='off'>
 									<button type="button" class="btn btn-success m-b-10 m-l-1" onclick="save_container()" style="margin-top:20px;width:10%;;">Save</button>
 								</div>
 							</div>
-							<button type="button" id='add_button' class="btn btn-primary btn-flat btn-addon m-b-10 m-l-5" style='border-radius:5px;' onclick='add_container()'><i class="ti-plus"></i>Container</button>
+							<button type="button" id='add_container_button' class="btn btn-primary btn-flat btn-addon m-b-10 m-l-5" style='border-radius:5px;' onclick='add_container()'><i class="ti-plus"></i>Container</button>
 							<div class='footer' style='height:40;width:100%;'>
 								<button type="submit" class="btn btn-default m-b-10" style='position:absolute;right:10px;bottom:0px;'>Submit</button>
 							</div>
@@ -250,11 +298,25 @@
 		</div>
 	</div>
 	<script>
+	function cancel_add_container(id,args=0,button,type='text'){
+		close_window(id,args,type);
+		document.getElementById(button).removeAttribute('disabled');
+	}
+	function close_window(id,args=0,type='text'){
+		document.getElementById(id).style.display='none';
+		if(Boolean(args)){
+			for(let i of args){
+				if(type==='text'){
+					document.getElementById(i).innerHTML='';
+				}else{
+					document.getElementById(i).value='';
+				}
+			}
+		}
+		document.getElementById('add_container_button').removeAttribute('disabled');
+	}
 	function open_form(){
 		document.getElementById('new_order').style.display="";
-	}
-	function close_form(){
-		document.getElementById('new_order').style.display="none";
 	}
 	function submit_order(){
 		document.getElementById('new_order').style.display="none";
@@ -262,12 +324,18 @@
 	}
 	function add_container(){
 		document.getElementById('new_container').style.display='';
-		document.getElementById('add_button').disabled='disabled';
+		document.getElementById('add_container_button').disabled='disabled';
 	}
+	function append_container(){
+		document.getElementById('order_container_body').style.height='40%';
+                document.getElementById('append_container').style.display='';
+                document.getElementById('append_container_button').disabled='disabled';
+        }
 	function save_container(){
 		container_table=document.getElementById('container_table');
 		row_id=container_table.rows.length;
 		tr=container_table.insertRow(row_id);
+		tr.id='row_'+row_id;
 		container_number=document.getElementById('container_number').value;
 		container_content=document.getElementById('container_content').value;
 		cnumber=document.createElement('input');
@@ -285,12 +353,37 @@
 		document.getElementById('containers').append(cnumber);
 		document.getElementById('containers').append(ccontent);
 		document.getElementById('containers').append(row_count);
-		tr.innerHTML=`<th scope="row">${row_id}</th><td>${container_number}</td><td>${container_content}</td><td style="text-align:right;">DELETE</td>`;
+		tr.innerHTML=`<td>${container_number}</td><td>${container_content}</td><td style="text-align:right"><a href='#' onclick="delete_saved_container('${tr.id}')">DELETE</a></td>`;
 		document.getElementById('container_number').value='';
 		document.getElementById('container_content').value='';
 		document.getElementById('saved_container').style.display='';
-		document.getElementById('add_button').removeAttribute('disabled');
+		document.getElementById('add_container_button').removeAttribute('disabled');
 		document.getElementById('new_container').style.display="none";
+	}
+	function delete_saved_container(row_id){
+		document.getElementById(row_id).remove();
+	}
+	function order_container(order_number){
+		document.getElementById('order_container').style.display='';
+		function container_detail(response_data){
+			tdata=document.getElementById('order_container_detail');
+			for(let container_number in response_data){
+				trow=document.createElement('tr');
+				trow.innerHTML=`<td>${container_number}</td><td>${response_data[container_number]['customer_code']}</td><td>${response_data[container_number]['content']}</td>`;
+				tdata.appendChild(trow);
+			}
+		}
+		document.getElementById('order_container').style.display='';
+		request=new XMLHttpRequest();
+		request.onreadystatechange=function (){
+			if(request.readyState===4){
+				if(request.status===200){
+					return container_detail(JSON.parse(request.responseText));
+				}
+			}
+		}
+		request.open('GET','/container/'+order_number+'/');
+		request.send();
 	}
 	</script>
 </div>

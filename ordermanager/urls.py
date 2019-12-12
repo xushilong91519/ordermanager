@@ -21,5 +21,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('',views.home),
     path('calendar/',views.calendar),
-	path('submit_order/',views.submit_order),
+    path('submit_order/',views.submit_order),
+    path('container/<str:order_number>/',views.order_container),
 ]

@@ -4,8 +4,8 @@ from django.utils import timezone
 # Create your models here.
 
 class Order(models.Model):
-    
     order_number=models.CharField(max_length=200)
+    count_of_today=models.IntegerField(default=1)
     customer_code=models.CharField(max_length=200)
     order_date=models.DateField('date ordered')
     assign_date=models.DateField('date assigned')
@@ -16,7 +16,8 @@ class Order(models.Model):
     qty=models.IntegerField()
     release_number=models.CharField(max_length=200,default='0')
     survey_code=models.CharField(max_length=200)
-    remark=models.TextField()
+    remark=models.TextField(default=None)
+    container_count=models.IntegerField(default=0)
 
     def __str__(self):
         return self.order_number

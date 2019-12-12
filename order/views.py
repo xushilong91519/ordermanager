@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse,JsonResponse
 from order.models import Order,Container,Customer
 from django.template.loader import get_template
 from django.utils import timezone
@@ -26,7 +26,15 @@ def calendar(request):
 
 def submit_order(request):
     new_order=Order()
-    new_order.order_number=''.join(re.split('[\s\-\+\.:]',str(timezone.now()))[0:7])
+    last_order=Order.objects.last()
+    today_date=timezone.now().date()
+    if not last_order:
+    	new_order.count_of_today=1
+    elif last_order.order_date==today_date:
+        new_order.count_of_today=last_order.count_of_today+1
+    else:
+        new_order.count_of_today=1
+    new_order.order_number=today_date.strftime('%Y%m%d')+'%04d'%new_order.count_of_today
     new_order.customer_code=request.POST['customer_code']
     new_order.order_date=request.POST['order_date']
     new_order.assign_date=request.POST['assign_date']
@@ -41,6 +49,8 @@ def submit_order(request):
     new_order.save()
     for i in range(int(request.POST['row_count'])):
         new_order.container_set.create(container_number=request.POST['container_number_%s'%(i+1)],content=request.POST['container_content_%s'%(i+1)])
+    new_order.container_count=new_order.container_set.count()
+    new_order.save()
     orders=Order.objects.all()
     try:
         customer=Customer.objects.get(customer_code=request.POST['customer_code'])
@@ -73,6 +83,10 @@ def edit_order(request,order_number):
     order.save()
     return render(request,'web1/order.html',locals())
 
-def container_detail(request,container_number):
-    container=Container.objects.get(container_number=container_number)
-    return HttpResponse(container.content)
+def order_container(request,order_number):
+    order=Order.objects.get(order_number=order_number)
+    containers=order.container_set.all()
+    response={}
+    for container in containers:
+        response[container.container_number]={'customer_code':container.order.customer_code,'content':container.content}
+    return JsonResponse(response)
