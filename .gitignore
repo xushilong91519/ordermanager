@@ -1,3 +1,4 @@
 *.py[cod]
 ordermanager/settings.py
 test.txt
+nohup.out
