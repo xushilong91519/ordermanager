@@ -1,2 +1,2 @@
 *.py[cod]
-settings.py
+ordermanager/settings.py
