@@ -78,7 +78,7 @@
 									<td>{{order.release_number}}</td>
 									<td>{{order.survey_code}}</td>
 									<td>{{order.remark}}</td>
-									<td><a href='#' onclick='order_container({{order.order_number}})' style='text-align:center;'>{{order.container_count}}</a></td>
+									<td style='text-align:center;'><a href='#' onclick='order_container({{order.order_number}})'>{{order.container_count}}</a></td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -173,8 +173,21 @@
                                 <span style='font-size:25px;margin-left:10px;'>Containers</span>
                                 <button type="button" id="header-close" onclick="close_window('order_container',['order_container_detail'])" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
                         </div>
-			<div class="card" id='order_container_body' style='height:94%;'>
-                                <div class="card-body" style='height:80%;overflow-y:scroll;'>
+			<button type="button" id='append_container_button' class="btn btn-primary btn-flat btn-addon m-b-10 m-l-15" style='border-radius:5px;' onclick='append_container()'><i class="ti-plus"></i>Container</button>
+			<div class="card" id='order_container_body' style='height:80%;'>
+                                <div class='card' id='append_container' style='display:none'>
+					<form action='/append_container/' method='post' onsubmit="submit_container()">
+                                        	{% csrf_token %}
+						<button type="button" id="header-right" onclick="cancel_add_container('append_container',['container_number','container_content'],'append_container_button','input')" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
+						<input type="hidden" id="order_number_for_append_container" name='order_number'>
+                                        	<p class="text-muted m-b-15 f-s-12">Container Number</p>
+                                        	<input type="text" class="form-control input-default " name='container_number' placeholder="Container Number" id='container_number' autocomplete='off'>
+                                        	<p class="text-muted m-b-15 f-s-12" style='margin-top:20px;'>Container Content</p>
+                                        	<input type="text" class="form-control input-default " name='container_content' placeholder="Container Content" id='container_content' autocomplete='off'>
+                                        	<button type="submit" class="btn btn-success m-b-10 m-l-1" style="margin-top:20px;width:10%;;">Submit</button>
+                                	</form>
+				</div>
+				<div class="card-body" style='height:80%;overflow-y:scroll;'>
                                     <div class="table-responsive">
                                         <table class="table table-striped">
                                             <thead>
@@ -188,16 +201,7 @@
                                             </tbody>
                                         </table>
                                     </div>
-				    <button type="button" id='add_container_button' class="btn btn-primary btn-flat btn-addon m-b-10 m-l-5" style='border-radius:5px;' onclick='add_container()'><i class="ti-plus"></i>Container</button>
                                 </div>
-                        </div>
-                        <div class='card' id='append_container' style='display:none;height:40%;'>
-                                <button type="button" id="header-right" onclick="cancel_add_container('append_container',['append_container_number','append_container_content'],'append_container_button','input')" class="btn btn-flat btn-sm m-b-10 m-l-5"><i class="ti-close"></i></button>
-                                <p class="text-muted m-b-15 f-s-12">Container Number</p>
-                                <input type="text" class="form-control input-default " placeholder="Container Number" id='append_container_number' autocomplete='off'>
-                                <p class="text-muted m-b-15 f-s-12" style='margin-top:20px;'>Container Content</p>
-                                <input type="text" class="form-control input-default " placeholder="Container Content" id='append_container_content' autocomplete='off'>
-                                <button type="button" class="btn btn-success m-b-10 m-l-1" onclick="submit_container()" style="margin-top:20px;width:10%;;">Submit</button>
                         </div>
 		</div>
 	</div>
@@ -322,12 +326,15 @@
 		document.getElementById('new_order').style.display="none";
 		return true;
 	}
+	function submit_container(){
+		document.getElementById('append_container').style.display="none";
+		return true;
+	}
 	function add_container(){
 		document.getElementById('new_container').style.display='';
 		document.getElementById('add_container_button').disabled='disabled';
 	}
 	function append_container(){
-		document.getElementById('order_container_body').style.height='40%';
                 document.getElementById('append_container').style.display='';
                 document.getElementById('append_container_button').disabled='disabled';
         }
@@ -365,6 +372,7 @@
 	}
 	function order_container(order_number){
 		document.getElementById('order_container').style.display='';
+		document.getElementById('order_number_for_append_container').value=order_number;
 		function container_detail(response_data){
 			tdata=document.getElementById('order_container_detail');
 			for(let container_number in response_data){

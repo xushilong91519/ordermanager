@@ -23,4 +23,5 @@ urlpatterns = [
     path('calendar/',views.calendar),
     path('submit_order/',views.submit_order),
     path('container/<str:order_number>/',views.order_container),
+    path('append_container/',views.submit_container),
 ]
