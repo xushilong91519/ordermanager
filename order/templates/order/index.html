@@ -369,6 +369,9 @@
 	}
 	function delete_saved_container(row_id){
 		document.getElementById(row_id).remove();
+		if(document.getElementById('container_table').rows.length===1){
+			document.getElementById('saved_container').style.display='none';
+		}
 	}
 	function order_container(order_number){
 		document.getElementById('order_container').style.display='';
