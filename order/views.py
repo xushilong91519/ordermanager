@@ -70,6 +70,28 @@ def submit_order(request):
     response['customer_count']=customer_count
     return render(request,'order/index.html',response)
 
+def edit_order(request,order_number):
+    response={}
+    order=Order.objects.get(order_number=order_number)
+    if request.POST.get('delete','false')=='true':
+        order.delete()
+        response['result']='succeed'
+    else:
+        order.customer_code=request.POST['customer_code']
+        order.order_date=request.POST['order_date']
+        order.assign_date=request.POST['assign_date']
+        order.survey_locations=request.POST['survey_locations']
+        order.depot_code=request.POST['depot_code']
+        order.depot_name=request.POST['depot_name']
+        order.unit_type=request.POST['unit_type']
+        order.qty=request.POST['qty']
+        order.release_number=request.POST['release_number']
+        order.survey_code=request.POST['survey_code']
+        order.remark=request.POST['remark']
+        order.save()
+        response['result']='succeed'
+    return JsonResponse(response)
+
 def submit_container(request):
     order_number=request.POST['order_number']
     container_number=request.POST['container_number']
@@ -88,19 +110,6 @@ def submit_container(request):
     response['container_count']=len(containers)
     response['customer_count']=customer_count
     return render(request,'order/index.html',response)
-
-def edit_order(request,order_number):
-    order=Order.objects.get(order_number=order_number)
-    order.customer_code=request.POST['customer_code']
-    order.survey_locations=request.POST['survey_locations']
-    order.depot_code=request.POST['depot_code']
-    order.depot_name=request.POST['depot_name']
-    order.unit_type=request.POST['unit_type']
-    order.release_number=request.POST['release_number']
-    order.survey_code=request.POST['survey_code']
-    order.remark=request.POST['remark']
-    order.save()
-    return render(request,'web1/order.html',locals())
 
 def order_container(request,order_number):
     order=Order.objects.get(order_number=order_number)

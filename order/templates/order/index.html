@@ -61,24 +61,30 @@
 								<th>Survey Code</th>
 								<th>Remark</th>
 								<th>Containers</th>
+								<th>Edit/Delete</th>
                         				</tr>
        	        	     			</thead>
         	            			<tbody>
 							{% for order in orders %}
-								<tr>
-									<td>{{order.order_number}}</td>
-									<td>{{order.customer_code}}</td>
-									<td>{{order.order_date}}</td>
-									<td>{{order.assign_date}}</td>
-									<td>{{order.survey_locations}}</td>
-									<td>{{order.depot_code}}</td>
-									<td>{{order.depot_name}}</td>
-									<td>{{order.unit_type}}</td>
-									<td>{{order.qty}}</td>
-									<td>{{order.release_number}}</td>
-									<td>{{order.survey_code}}</td>
-									<td>{{order.remark}}</td>
+								<tr id='{{order.order_number}}'>
+									<td name='order_number'>{{order.order_number}}</td>
+									<td name='customer_code'>{{order.customer_code}}</td>
+									<td name='order_date'>{{order.order_date}}</td>
+									<td name='assign_date'>{{order.assign_date}}</td>
+									<td name='survey_locations'>{{order.survey_locations}}</td>
+									<td name='depot_code'>{{order.depot_code}}</td>
+									<td name='depot_name'>{{order.depot_name}}</td>
+									<td name='unit_type'>{{order.unit_type}}</td>
+									<td name='qty'>{{order.qty}}</td>
+									<td name='release_number'>{{order.release_number}}</td>
+									<td name='survey_code'>{{order.survey_code}}</td>
+									<td name='remark'>{{order.remark}}</td>
 									<td style='text-align:center;'><a href='#' onclick='order_container({{order.order_number}})'>{{order.container_count}}</a></td>
+									<td style='text-align:center;'>
+										<a href='#' onclick='edit_order({{order.order_number}})'><span class="ti-pencil" title='edit'></span></a>
+										<a href='#' onclick='save_change({{order.order_number}})'><span class="ti-save" title='save'></span></a>
+										<a href='#' onclick='delete_order({{order.order_number}})'><span class="ti-trash" title='delete'></span></a>
+									</td>
 								</tr>
 							{% endfor %}
 						</tbody>
@@ -221,7 +227,7 @@
 								<input type="text" class="form-control input-default " placeholder="Customer Code" name='customer_code' autocomplete='off'>
 							</div>
 							<div class="form-group">
-								<p class="text-muted m-b-15 f-s-12">Ordered date*</p>
+								<p class="text-muted m-b-15 f-s-12">Ordered Date*</p>
 								<input type="date" class="form-control input-default " placeholder="Order Date" name='order_date'>
 							</div>
 							<div class="form-group">
@@ -325,6 +331,63 @@
 	function submit_order(){
 		document.getElementById('new_order').style.display="none";
 		return true;
+	}
+	function edit_order(order_number){
+		this_row=document.getElementById(order_number);
+		for(let i=1;i<=11;i++){
+			if(['order_date','assign_date'].includes(this_row.children[i].getAttribute('name'))){
+				parse_date=new Date(`${this_row.children[i].innerHTML}`);
+				this_row.children[i].innerHTML=`<input type='date' value=${parse_date.toISOString().slice(0,10)}>`;
+			}else{
+				this_row.children[i].innerHTML=`<input type='text' value='${this_row.children[i].innerHTML}'>`;
+			}
+		}
+	}
+	function save_change(order_number){
+		var this_row=document.getElementById(order_number);
+		var data=new FormData();
+		for(let i=1;i<=11;i++){
+			data.append(this_row.children[i].getAttribute('name'),this_row.children[i].children[0].value);
+		}
+		data.append('csrfmiddlewaretoken','{{ csrf_token }}');
+		function change_result(responseData){
+			if(responseData['result']==='succeed'){
+				for(let i=1;i<=11;i++){
+                        		this_row.children[i].innerHTML=this_row.children[i].children[0].value;
+                		}
+			}
+		}
+		request=new XMLHttpRequest();
+		request.onreadystatechange=function (){
+			if(request.readyState===4){
+				if(request.status===200){
+					return change_result(JSON.parse(request.responseText));
+				}
+			}
+		}
+		request.open('POST','/edit_order/'+order_number+'/');
+		request.send(data);
+	}
+	function delete_order(order_number){
+		this_row=document.getElementById(order_number);
+		var data=new FormData();
+		data.append('delete','true');
+		function change_result(responseData){
+			if(responseData['result']==='succeed'){
+				this_row.remove();
+			}
+		}
+		var request=new XMLHttpRequest();
+		request.onreadystatechange=function (){
+			if(request.readyState===4){
+				if(request.status===200){
+					return change_result(JSON.parse(request.responseText));
+				}
+			}
+		}
+		data.append('csrfmiddlewaretoken','{{ csrf_token }}');
+		request.open('POST','/edit_order/'+order_number+'/');
+		request.send(data);
 	}
 	function submit_container(){
 		document.getElementById('append_container').style.display="none";
