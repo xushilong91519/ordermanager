@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import HttpResponse,JsonResponse
+from django.http import HttpResponse,JsonResponse,HttpResponseRedirect
 from order.models import Order,Container,Customer
 from django.template.loader import get_template
 from django.utils import timezone
@@ -51,24 +51,7 @@ def submit_order(request):
         new_order.container_set.create(container_number=request.POST['container_number_%s'%(i+1)],content=request.POST['container_content_%s'%(i+1)])
     new_order.container_count=new_order.container_set.count()
     new_order.save()
-    orders=Order.objects.all()
-    try:
-        customer=Customer.objects.get(customer_code=request.POST['customer_code'])
-    except:
-        customer=Customer()
-        customer.customer_code=request.POST['customer_code']
-        customer.order_count=0
-    customer.order_count+=1
-    customer.save()
-    customer_count=Customer.objects.count()
-    containers=Container.objects.all()
-    response={}
-    response['orders']=orders
-    response['order_count']=len(orders)
-    response['containers']=containers
-    response['container_count']=len(containers)
-    response['customer_count']=customer_count
-    return render(request,'order/index.html',response)
+    return HttpResponseRedirect('/')
 
 def edit_order(request,order_number):
     response={}
@@ -100,16 +83,7 @@ def submit_container(request):
     order.container_set.create(container_number=container_number,content=container_content)
     order.container_count+=1
     order.save()
-    orders=Order.objects.all()
-    customer_count=Customer.objects.count()
-    containers=Container.objects.all()
-    response={}
-    response['orders']=orders
-    response['order_count']=len(orders)
-    response['containers']=containers
-    response['container_count']=len(containers)
-    response['customer_count']=customer_count
-    return render(request,'order/index.html',response)
+    return HttpResponseRedirect('/')
 
 def order_container(request,order_number):
     order=Order.objects.get(order_number=order_number)

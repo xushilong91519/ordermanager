@@ -220,7 +220,7 @@
 			<div class="card" style='height:80%;cardPreventCornerOverlap=false;'>
 				<div class="card-body" style='height:80%'>
 					<div class="basic-form" style='height:100%'>
-						<form style='overflow-y:scroll;height:90%;' onsubmit='return submit_order()' action='/submit_order/' method='post'>
+						<form style='overflow-y:scroll;height:90%;' onsubmit='return submit_order()' action='/submit_order/' method='post' target="_top">
 							{% csrf_token %}
 							<div class="form-group">
 								<p class="text-muted m-b-15 f-s-12">The Customer Code for this order.*</p>
@@ -266,6 +266,9 @@
 								<p class="text-muted m-b-15 f-s-12">Remark</p>
 								<input type="text" class="form-control input-default " placeholder="Remark" name='remark'>
 							</div>
+							<div class="form-group" style='display:none'>
+                                                                <input type="text" id='row_count' class="form-control input-default " name='row_count' value='0'>
+                                                        </div>
 							<div class='form-group' id='containers'>
 								<p class="text-muted m-b-15 f-s-12" >Containers</p>
 								<div class="card" id='saved_container' style='display:none;'>
@@ -416,13 +419,10 @@
 		ccontent.type='hidden';
 		ccontent.value=container_content;
 		ccontent.name='container_content_'+row_id;
-		row_count=document.createElement('input');
-                row_count.type='hidden';
-                row_count.value=row_id;
-                row_count.name='row_count';
+		row_count=document.getElementById('row_count');
+		row_count.value=String(Number(row_count.value)+1);
 		document.getElementById('containers').append(cnumber);
 		document.getElementById('containers').append(ccontent);
-		document.getElementById('containers').append(row_count);
 		tr.innerHTML=`<td>${container_number}</td><td>${container_content}</td><td style="text-align:right"><a href='#' onclick="delete_saved_container('${tr.id}')">DELETE</a></td>`;
 		document.getElementById('container_number').value='';
 		document.getElementById('container_content').value='';
