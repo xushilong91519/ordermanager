@@ -389,8 +389,10 @@
 			}
 		}
 		data.append('csrfmiddlewaretoken','{{ csrf_token }}');
-		request.open('POST','/edit_order/'+order_number+'/');
-		request.send(data);
+		if(confirm("Delete this order?")){
+			request.open('POST','/edit_order/'+order_number+'/');
+			request.send(data);
+		}
 	}
 	function submit_container(){
 		document.getElementById('append_container').style.display="none";
